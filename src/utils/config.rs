@@ -11,7 +11,7 @@ impl Config {
         let mut config = Config {
             host: "127.0.0.1".to_string(),
             port: 8080,
-            db_url: "postgres://postgres:postgres@localhost:5432/postgres".to_string(),
+            db_url: "postgres://api_cyberpunk:api_pswd@localhost:5432/cyberpunk".to_string(),
             jwt_secret: "secret".to_string(),
         };
 

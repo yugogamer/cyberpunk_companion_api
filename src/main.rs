@@ -11,7 +11,14 @@ async fn index() -> HttpResponse {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = utils::config::Config::new();
-    let pool = utils::database::connect_to_database(&config).await.unwrap();
+    let pool = utils::database::connect_to_database(&config).await;
+    let pool = match pool {
+        Ok(pool) => pool,
+        Err(e) => {
+            println!("{:?}", e);
+            std::process::exit(1);
+        }
+    };
 
     HttpServer::new(move || {
         App::new()

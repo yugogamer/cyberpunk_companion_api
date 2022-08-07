@@ -9,9 +9,9 @@ CREATE TABLE IF NOT EXISTS accounts(
 );
 CREATE TABLE IF NOT EXISTS groupes(
     id SERIAL NOT NULL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL
 );
-CREATE TABLE IF NOT EXISTS accounts_to_user(
+CREATE TABLE IF NOT EXISTS accounts_to_groupes(
     id_account INTEGER NOT NULL REFERENCES accounts(id),
     id_groupe INTEGER NOT NULL REFERENCES groupes(id),
     PRIMARY KEY (id_account, id_groupe)
