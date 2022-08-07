@@ -1,3 +1,4 @@
+use actix_web::web::Data;
 use actix_web::{get, middleware, App, HttpResponse, HttpServer};
 
 mod utils;
@@ -9,8 +10,12 @@ async fn index() -> HttpResponse {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    let config = utils::config::Config::new();
+    let pool = utils::database::connect_to_database(&config).await.unwrap();
+
+    HttpServer::new(move || {
         App::new()
+            .app_data(Data::new(pool.clone()))
             .wrap(middleware::Compress::default())
             .service(index)
     })

@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Config {
     pub host: String,
     pub port: u16,
@@ -19,5 +19,18 @@ impl Config {
         return config;
     }
 
-    fn load_config() {}
+    fn load_config(&mut self) {
+        if let Ok(host) = std::env::var("HOST") {
+            self.host = host;
+        }
+        if let Ok(port) = std::env::var("PORT") {
+            self.port = port.parse::<u16>().unwrap();
+        }
+        if let Ok(db_url) = std::env::var("DATABASE_URL") {
+            self.db_url = db_url;
+        }
+        if let Ok(jwt_secret) = std::env::var("JWT_SECRET") {
+            self.jwt_secret = jwt_secret;
+        }
+    }
 }
