@@ -1,16 +1,26 @@
-use actix_web::web::Data;
-use actix_web::{get, middleware, App, HttpResponse, HttpServer};
+use std::sync::Arc;
 
+use actix_web::web::{self, Data};
+use actix_web::{get, middleware, App, HttpResponse, HttpServer};
+use utils::config::Config;
+
+mod controller;
+mod service;
 mod utils;
 
 #[get("/")]
 async fn index() -> HttpResponse {
-    HttpResponse::Ok().body("data")
+    HttpResponse::Ok().body("status : Ok")
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = utils::config::Config::new();
+    if let Err(e) = config {
+        println!("{}", e);
+        std::process::exit(1);
+    }
+    let config = config.unwrap();
     let pool = utils::database::connect_to_database(&config).await;
     let pool = match pool {
         Ok(pool) => pool,
@@ -20,13 +30,26 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
+        let config = utils::config::Config::new().unwrap();
         App::new()
+            .wrap(middleware::Logger::default())
             .app_data(Data::new(pool.clone()))
+            .app_data(Data::new(config))
             .wrap(middleware::Compress::default())
+            .service(
+                web::scope("/api").service(
+                    web::scope("/account")
+                        .service(controller::account::login)
+                        .service(controller::account::register), //.service(controller::account::logout)
+                                                                 //.service(controller::account::get_account),
+                ),
+            )
             .service(index)
     })
-    .bind(("127.0.0.1", 8080))?
-    .run()
-    .await
+    .bind((config.host.clone(), config.port))?
+    .run();
+
+    println!("Listening on http://{}:{}", config.host, config.port);
+    server.await
 }

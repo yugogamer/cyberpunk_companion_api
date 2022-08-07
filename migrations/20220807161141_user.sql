@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS accounts(
     username TEXT NOT NULL UNIQUE NOT NULL,
     email TEXT NOT NULL UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    created_on TIMESTAMP NOT NULL,
+    created_on TIMESTAMP NOT NULL DEFAULT now(),
     last_login TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS groupes(

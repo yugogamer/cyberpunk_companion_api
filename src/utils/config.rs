@@ -1,25 +1,32 @@
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
+
+use super::errors::AppErrors;
+
 #[derive(Debug, Clone)]
 pub struct Config {
     pub host: String,
     pub port: u16,
     pub db_url: String,
-    pub jwt_secret: String,
+    pub jwt_secret: Hmac<Sha256>,
+    pub argon2_config: argon2::Config<'static>,
 }
 
 impl Config {
-    pub fn new() -> Config {
+    pub fn new() -> Result<Config, AppErrors> {
         let mut config = Config {
             host: "127.0.0.1".to_string(),
             port: 8080,
             db_url: "postgres://api_cyberpunk:api_pswd@localhost:5432/cyberpunk".to_string(),
-            jwt_secret: "secret".to_string(),
+            jwt_secret: Hmac::new_from_slice(b"secret")?,
+            argon2_config: argon2::Config::default(),
         };
 
-        config.load_config();
-        return config;
+        config.load_config()?;
+        return Ok(config);
     }
 
-    fn load_config(&mut self) {
+    fn load_config(&mut self) -> Result<(), AppErrors> {
         if let Ok(host) = std::env::var("HOST") {
             self.host = host;
         }
@@ -30,7 +37,8 @@ impl Config {
             self.db_url = db_url;
         }
         if let Ok(jwt_secret) = std::env::var("JWT_SECRET") {
-            self.jwt_secret = jwt_secret;
+            self.jwt_secret = Hmac::new_from_slice(jwt_secret.as_bytes())?;
         }
+        Ok(())
     }
 }
