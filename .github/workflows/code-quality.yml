@@ -34,13 +34,14 @@ jobs:
           components: clippy
           override: true
 
-      - name: Install required cargo
-        run: cargo install clippy-sarif sarif-fmt
-        
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2.0.0
         with:
           shared_key: api_cyberpunk
+
+      - name: Install required cargo
+        run: cargo install clippy-sarif sarif-fmt
+        
 
       - name: Run rust-clippy
         run: cargo clippy
