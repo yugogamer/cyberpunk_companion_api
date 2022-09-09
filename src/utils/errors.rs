@@ -1,10 +1,13 @@
 use actix_web::{error::HttpError, HttpResponse, ResponseError};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AppErrors {
+    #[error("email or username already in use")]
+    EmailAlreadyUsed(),
     #[error("data store disconnected")]
-    NoUserFinded,
+    NoUserFinde,
     #[error("invalid token")]
     InvalidToken,
     #[error("invalid password")]
@@ -25,29 +28,81 @@ pub enum AppErrors {
     HttpError(#[from] HttpError),
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AppErrorsResponse {
+    pub status_code: u16,
+    pub types: String,
+    pub message: String,
+}
+
+impl AppErrorsResponse {
+    pub fn new(error: &AppErrors) -> Self {
+        let types = format!("{:?}", error);
+        let message = error.to_string();
+        match error {
+            AppErrors::EmailAlreadyUsed() => Self {
+                status_code: 400,
+                types,
+                message,
+            },
+            AppErrors::NoUserFinde => Self {
+                status_code: 400,
+                types,
+                message,
+            },
+            AppErrors::InvalidToken => Self {
+                status_code: 400,
+                types,
+                message,
+            },
+            AppErrors::InvalidPassword(_) => Self {
+                status_code: 400,
+                types,
+                message,
+            },
+            AppErrors::DecoderError(_) => Self {
+                status_code: 400,
+                types,
+                message,
+            },
+            AppErrors::InvalidJwt(_) => Self {
+                status_code: 400,
+                types,
+                message,
+            },
+            AppErrors::InvalideBase64(_) => Self {
+                status_code: 400,
+                types,
+                message,
+            },
+            AppErrors::ConnectionErrors(_) => Self {
+                status_code: 500,
+                types,
+                message,
+            },
+            AppErrors::MigrateErrors(_) => Self {
+                status_code: 500,
+                types,
+                message,
+            },
+            AppErrors::InvalidSecretLenght(_) => Self {
+                status_code: 500,
+                types,
+                message,
+            },
+            AppErrors::HttpError(_) => Self {
+                status_code: 500,
+                types,
+                message,
+            },
+        }
+    }
+}
+
 impl ResponseError for AppErrors {
     fn error_response(&self) -> actix_web::HttpResponse<actix_web::body::BoxBody> {
-        match self {
-            AppErrors::NoUserFinded => HttpResponse::Unauthorized().body("No user finded"),
-            AppErrors::InvalidToken => HttpResponse::Unauthorized().body("Invalid token"),
-            AppErrors::InvalidPassword(_) => {
-                HttpResponse::InternalServerError().body("Invalid password")
-            }
-            AppErrors::DecoderError(_) => HttpResponse::InternalServerError().body("Decode error"),
-            AppErrors::InvalidJwt(_) => HttpResponse::InternalServerError().body("Invalid jwt"),
-            AppErrors::InvalideBase64(_) => {
-                HttpResponse::InternalServerError().body("Invalid base64")
-            }
-            AppErrors::ConnectionErrors(err) => {
-                HttpResponse::InternalServerError().body(format!("err : {:?}", err))
-            }
-            AppErrors::MigrateErrors(_) => {
-                HttpResponse::InternalServerError().body("Database migration error")
-            }
-            AppErrors::InvalidSecretLenght(_) => {
-                HttpResponse::InternalServerError().body("Invalid secret lenght")
-            }
-            AppErrors::HttpError(_) => HttpResponse::InternalServerError().body("http errors"),
-        }
+        let response = AppErrorsResponse::new(&self);
+        HttpResponse::build(actix_web::http::StatusCode::from_u16(response.status_code).unwrap())
+            .json(response)
     }
 }
