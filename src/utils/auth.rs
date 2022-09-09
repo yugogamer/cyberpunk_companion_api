@@ -14,7 +14,10 @@ impl FromRequest for LightAccount {
         req: &actix_web::HttpRequest,
         _payload: &mut actix_web::dev::Payload,
     ) -> Self::Future {
-        let config = req.app_data::<Config>().unwrap();
+        let config = match req.app_data::<actix_web::web::Data<Config>>() {
+            Some(config) => config,
+            None => return future::ready(Err(AppErrors::ConfigError)),
+        };
         let cookie = req.cookie("session");
         let token = match cookie {
             Some(cookie) => cookie.value().to_string(),

@@ -81,7 +81,7 @@ impl Account {
         .fetch_one(conn)
         .await?;
 
-        if utils::auth::verify_password(&password, &password_db.password)? {
+        if !utils::auth::verify_password(&password, &password_db.password)? {
             return Err(AppErrors::NoUserFinde);
         }
         let light_account = LightAccount {

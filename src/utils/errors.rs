@@ -26,6 +26,8 @@ pub enum AppErrors {
     InvalidSecretLenght(#[from] sha2::digest::InvalidLength),
     #[error("http errors")]
     HttpError(#[from] HttpError),
+    #[error("config loading error")]
+    ConfigError,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -91,6 +93,11 @@ impl AppErrorsResponse {
                 message,
             },
             AppErrors::HttpError(_) => Self {
+                status_code: 500,
+                types,
+                message,
+            },
+            AppErrors::ConfigError => Self {
                 status_code: 500,
                 types,
                 message,
