@@ -9,7 +9,7 @@ use cookie::Cookie;
 use sqlx::{Pool, Postgres};
 
 use crate::{
-    service::account::{Account, CreateAccount, LightAccount, Login},
+    service::account::{Account, CreateAccount, LightAccount, Login, PublicAccount},
     utils::{config::Config, errors::AppErrors},
 };
 
@@ -44,6 +44,11 @@ async fn register(
 }
 
 #[get("/info")]
-async fn get_account(account: LightAccount) -> Result<Json<LightAccount>, AppErrors> {
-    Ok(Json(account))
+async fn get_account(
+    conn: web::Data<Pool<Postgres>>,
+    account: LightAccount,
+) -> Result<Json<PublicAccount>, AppErrors> {
+    Ok(Json(
+        PublicAccount::get_public_account(&conn, account.id).await?,
+    ))
 }

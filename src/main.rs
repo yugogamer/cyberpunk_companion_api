@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use actix_web::web::{self, Data};
 use actix_web::{get, middleware, App, HttpResponse, HttpServer};
-use utils::config::Config;
 
 mod controller;
 mod service;

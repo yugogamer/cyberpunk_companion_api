@@ -15,6 +15,14 @@ pub struct Account {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PublicAccount {
+    id: i32,
+    username: String,
+    created_on: chrono::NaiveDateTime,
+    last_login: Option<chrono::NaiveDateTime>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateAccount {
     username: String,
     email: String,
@@ -29,8 +37,8 @@ pub struct Login {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LightAccount {
-    id: i32,
-    username: String,
+    pub id: i32,
+    pub username: String,
 }
 
 impl Account {
@@ -61,7 +69,7 @@ impl Account {
             create_account.email,
             hash
         )
-        .fetch_one(conn)
+        .execute(conn)
         .await?;
 
         Ok(())
@@ -84,6 +92,15 @@ impl Account {
         if !utils::auth::verify_password(&password, &password_db.password)? {
             return Err(AppErrors::NoUserFinde);
         }
+
+        sqlx::query!(
+            "UPDATE accounts SET last_login = $1 WHERE username = $2",
+            chrono::Utc::now().naive_utc(),
+            username
+        )
+        .execute(conn)
+        .await?;
+
         let light_account = LightAccount {
             id: password_db.id,
             username: password_db.username,
@@ -92,5 +109,19 @@ impl Account {
         let token = utils::auth::generate_jwt(&light_account, key)?;
 
         Ok(token)
+    }
+}
+
+impl PublicAccount {
+    pub async fn get_public_account(conn: &PgPool, id: i32) -> Result<PublicAccount, AppErrors> {
+        let result: PublicAccount = query_as!(
+            PublicAccount,
+            "SELECT id, username, created_on, last_login FROM accounts WHERE id = $1",
+            id
+        )
+        .fetch_one(conn)
+        .await?;
+
+        Ok(result)
     }
 }
