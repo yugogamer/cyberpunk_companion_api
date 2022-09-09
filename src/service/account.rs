@@ -1,6 +1,6 @@
 use argon2::Config;
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as, PgPool};
+use sqlx::{query_as, PgPool};
 
 use crate::utils::{self, errors::AppErrors};
 
@@ -57,7 +57,7 @@ impl Account {
         .fetch_all(conn)
         .await?;
 
-        if result.len() > 0 {
+        if !result.is_empty() {
             return Err(AppErrors::EmailAlreadyUsed());
         }
 

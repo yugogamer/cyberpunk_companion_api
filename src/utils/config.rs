@@ -23,7 +23,7 @@ impl Config {
         };
 
         config.load_config()?;
-        return Ok(config);
+        Ok(config)
     }
 
     fn load_config(&mut self) -> Result<(), AppErrors> {

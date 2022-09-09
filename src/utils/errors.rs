@@ -154,7 +154,7 @@ impl AppErrorsResponse {
 
 impl ResponseError for AppErrors {
     fn error_response(&self) -> actix_web::HttpResponse<actix_web::body::BoxBody> {
-        let response = AppErrorsResponse::new(&self);
+        let response = AppErrorsResponse::new(self);
         HttpResponse::build(actix_web::http::StatusCode::from_u16(response.status_code).unwrap())
             .json(response)
     }
