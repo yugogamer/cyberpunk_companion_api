@@ -35,72 +35,118 @@ pub struct AppErrorsResponse {
     pub status_code: u16,
     pub types: String,
     pub message: String,
+    pub trace: Option<String>,
 }
 
 impl AppErrorsResponse {
     pub fn new(error: &AppErrors) -> Self {
         let types = format!("{:?}", error);
         let message = error.to_string();
+        let trace = None;
         match error {
             AppErrors::EmailAlreadyUsed() => Self {
                 status_code: 400,
                 types,
                 message,
+                trace,
             },
             AppErrors::NoUserFinde => Self {
                 status_code: 400,
                 types,
                 message,
+                trace,
             },
             AppErrors::InvalidToken => Self {
                 status_code: 400,
                 types,
                 message,
+                trace,
             },
-            AppErrors::InvalidPassword(_) => Self {
+            AppErrors::InvalidPassword(err) => Self {
+                status_code: 400,
+                types: "InvalidPassword".to_string(),
+                message,
+                trace: if cfg!(debug_assertions) {
+                    Some(format!("{:?}", err))
+                } else {
+                    None
+                },
+            },
+            AppErrors::DecoderError(err) => Self {
                 status_code: 400,
                 types,
                 message,
+                trace: if cfg!(debug_assertions) {
+                    Some(format!("{:?}", err))
+                } else {
+                    None
+                },
             },
-            AppErrors::DecoderError(_) => Self {
+            AppErrors::InvalidJwt(err) => Self {
                 status_code: 400,
                 types,
                 message,
+                trace: if cfg!(debug_assertions) {
+                    Some(format!("{:?}", err))
+                } else {
+                    None
+                },
             },
-            AppErrors::InvalidJwt(_) => Self {
+            AppErrors::InvalideBase64(err) => Self {
                 status_code: 400,
                 types,
                 message,
+                trace: if cfg!(debug_assertions) {
+                    Some(format!("{:?}", err))
+                } else {
+                    None
+                },
             },
-            AppErrors::InvalideBase64(_) => Self {
-                status_code: 400,
-                types,
-                message,
-            },
-            AppErrors::ConnectionErrors(_) => Self {
+            AppErrors::ConnectionErrors(err) => Self {
                 status_code: 500,
                 types,
                 message,
+                trace: if cfg!(debug_assertions) {
+                    Some(format!("{:?}", err))
+                } else {
+                    None
+                },
             },
-            AppErrors::MigrateErrors(_) => Self {
+            AppErrors::MigrateErrors(err) => Self {
                 status_code: 500,
                 types,
                 message,
+                trace: if cfg!(debug_assertions) {
+                    Some(format!("{:?}", err))
+                } else {
+                    None
+                },
             },
-            AppErrors::InvalidSecretLenght(_) => Self {
+            AppErrors::InvalidSecretLenght(err) => Self {
                 status_code: 500,
                 types,
                 message,
+                trace: if cfg!(debug_assertions) {
+                    Some(format!("{:?}", err))
+                } else {
+                    None
+                },
             },
-            AppErrors::HttpError(_) => Self {
+            AppErrors::HttpError(err) => Self {
                 status_code: 500,
                 types,
                 message,
+                trace: if cfg!(debug_assertions) {
+                    Some(format!("{:?}", err))
+                } else {
+                    None
+                },
             },
             AppErrors::ConfigError => Self {
                 status_code: 500,
                 types,
                 message,
+                trace,
             },
         }
     }
