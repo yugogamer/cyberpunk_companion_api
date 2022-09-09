@@ -36,7 +36,7 @@ impl Config {
         if let Ok(db_url) = std::env::var("DATABASE_URL") {
             self.db_url = db_url;
         }
-	if let Ok(db_url) = std::env::var("POSTGRESQL_ADDON_URI"){
+        if let Ok(db_url) = std::env::var("POSTGRESQL_ADDON_URI") {
             self.db_url = db_url;
         }
         if let Ok(jwt_secret) = std::env::var("JWT_SECRET") {

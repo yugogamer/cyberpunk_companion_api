@@ -39,6 +39,20 @@ impl Account {
         create_account: CreateAccount,
         config: &Config<'_>,
     ) -> Result<(), AppErrors> {
+        let result: Vec<Account> = sqlx::query_as!(
+            Account,
+            "SELECT * FROM accounts
+            where username = $1 or email = $2",
+            create_account.username,
+            create_account.email,
+        )
+        .fetch_all(conn)
+        .await?;
+
+        if result.len() > 0 {
+            return Err(AppErrors::EmailAlreadyUsed());
+        }
+
         let hash = utils::auth::password_hash(&create_account.password, config)?;
 
         sqlx::query!(
@@ -49,6 +63,7 @@ impl Account {
         )
         .fetch_one(conn)
         .await?;
+
         Ok(())
     }
 
@@ -67,7 +82,7 @@ impl Account {
         .await?;
 
         if utils::auth::verify_password(&password, &password_db.password)? {
-            return Err(AppErrors::NoUserFinded);
+            return Err(AppErrors::NoUserFinde);
         }
         let light_account = LightAccount {
             id: password_db.id,

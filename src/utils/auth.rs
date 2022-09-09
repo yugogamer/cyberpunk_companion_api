@@ -1,29 +1,38 @@
-use std::future::Ready;
+use std::future::{self, Ready};
 
 use crate::service::account::LightAccount;
 
-use super::errors::AppErrors;
+use super::{config::Config, errors::AppErrors};
 use actix_web::FromRequest;
 use jwt::{SignWithKey, VerifyWithKey};
 
-pub struct User;
-
-impl FromRequest for User {
+impl FromRequest for LightAccount {
     type Error = AppErrors;
-    type Future = Ready<Result<User, AppErrors>>;
+    type Future = Ready<Result<Self, AppErrors>>;
 
     fn from_request(
         req: &actix_web::HttpRequest,
-        payload: &mut actix_web::dev::Payload,
+        _payload: &mut actix_web::dev::Payload,
     ) -> Self::Future {
-        todo!()
+        let config = req.app_data::<Config>().unwrap();
+        let cookie = req.cookie("session");
+        let token = match cookie {
+            Some(cookie) => cookie.value().to_string(),
+            None => return future::ready(Err(AppErrors::InvalidToken)),
+        };
+
+        let token = verify_jwt(&token, &config.jwt_secret);
+        match token {
+            Ok(light_account) => future::ready(Ok(light_account)),
+            Err(_) => future::ready(Err(AppErrors::InvalidToken)),
+        }
     }
 }
 
 fn generate_random_salt() -> [u8; 32] {
     let mut salt = [0u8; 32];
-    for i in 0..32 {
-        salt[i] = rand::random::<u8>();
+    for i in salt.iter_mut() {
+        *i = rand::random::<u8>();
     }
     salt
 }
@@ -51,7 +60,7 @@ pub fn generate_jwt(
     Ok(token)
 }
 
-pub fn verify_jwt(token: &str, key: hmac::Hmac<sha2::Sha256>) -> Result<LightAccount, AppErrors> {
-    let accounts: LightAccount = token.verify_with_key(&key)?;
+pub fn verify_jwt(token: &str, key: &hmac::Hmac<sha2::Sha256>) -> Result<LightAccount, AppErrors> {
+    let accounts: LightAccount = token.verify_with_key(key)?;
     Ok(accounts)
 }

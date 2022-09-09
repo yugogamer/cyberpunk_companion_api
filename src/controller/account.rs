@@ -1,9 +1,15 @@
-use actix_web::{get, http::StatusCode, post, web, HttpResponse};
+use actix_web::{
+    get,
+    http::StatusCode,
+    post,
+    web::{self, Json},
+    HttpResponse,
+};
 use cookie::Cookie;
 use sqlx::{Pool, Postgres};
 
 use crate::{
-    service::account::{Account, CreateAccount, Login},
+    service::account::{Account, CreateAccount, LightAccount, Login},
     utils::{config::Config, errors::AppErrors},
 };
 
@@ -35,4 +41,9 @@ async fn register(
     let create = create.into_inner();
     Account::create_account(&conn, create, &config.argon2_config).await?;
     Ok(HttpResponse::new(StatusCode::OK))
+}
+
+#[get("/info")]
+async fn get_account(account: LightAccount) -> Result<Json<LightAccount>, AppErrors> {
+    Ok(Json(account))
 }

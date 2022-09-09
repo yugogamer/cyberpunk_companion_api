@@ -41,8 +41,9 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/api").service(
                     web::scope("/account")
                         .service(controller::account::login)
-                        .service(controller::account::register), //.service(controller::account::logout)
-                                                                 //.service(controller::account::get_account),
+                        .service(controller::account::register)
+                        .service(controller::account::get_account), //.service(controller::account::logout)
+                                                                    //.service(controller::account::get_account),
                 ),
             )
             .service(index)
