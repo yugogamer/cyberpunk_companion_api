@@ -186,4 +186,4 @@ VALUES -- awareness
     ('pick lock', '', 3, 8),
     ('pick pocket', '', 3, 8),
     ('sea vehicle tech', '', 3, 8),
-    ('weapongtech', '', 3, 8);
+    ('weapontech', '', 3, 8);
