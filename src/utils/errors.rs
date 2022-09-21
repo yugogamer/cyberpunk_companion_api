@@ -28,6 +28,8 @@ pub enum AppErrors {
     HttpError(#[from] HttpError),
     #[error("config loading error")]
     ConfigError,
+    #[error("invalid request {0} not found")]
+    NotFound(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -144,6 +146,12 @@ impl AppErrorsResponse {
             },
             AppErrors::ConfigError => Self {
                 status_code: 500,
+                types,
+                message,
+                trace,
+            },
+            AppErrors::NotFound(_) => Self {
+                status_code: 404,
                 types,
                 message,
                 trace,

@@ -2,6 +2,7 @@ use actix_web::web::{self, Data};
 use actix_web::{get, middleware, App, HttpResponse, HttpServer};
 
 mod controller;
+mod entities;
 mod service;
 mod utils;
 

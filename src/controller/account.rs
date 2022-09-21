@@ -9,7 +9,8 @@ use cookie::Cookie;
 use sqlx::{Pool, Postgres};
 
 use crate::{
-    service::account::{Account, CreateAccount, LightAccount, Login, PublicAccount},
+    entities::account::{Account, CreateAccount, LightAccount, Login, PublicAccount},
+    service::account::{auth_account, create_account, get_public_account},
     utils::{config::Config, errors::AppErrors},
 };
 
@@ -23,7 +24,7 @@ async fn login(
     let username = login.username;
     let password = login.password;
 
-    let token = Account::auth_account(&conn, username, password, &config.jwt_secret).await?;
+    let token = auth_account(&conn, username, password, &config.jwt_secret).await?;
 
     let cookie = Cookie::new("session", token);
 
@@ -39,7 +40,7 @@ async fn register(
     create: web::Json<CreateAccount>,
 ) -> Result<HttpResponse, AppErrors> {
     let create = create.into_inner();
-    Account::create_account(&conn, create, &config.argon2_config).await?;
+    create_account(&conn, create, &config.argon2_config).await?;
     Ok(HttpResponse::new(StatusCode::OK))
 }
 
@@ -48,7 +49,5 @@ async fn get_account(
     conn: web::Data<Pool<Postgres>>,
     account: LightAccount,
 ) -> Result<Json<PublicAccount>, AppErrors> {
-    Ok(Json(
-        PublicAccount::get_public_account(&conn, account.id).await?,
-    ))
+    Ok(Json(get_public_account(&conn, account.id).await?))
 }

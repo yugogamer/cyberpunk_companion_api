@@ -1,6 +1,6 @@
 use std::future::{self, Ready};
 
-use crate::service::account::LightAccount;
+use crate::entities::account::LightAccount;
 
 use super::{config::Config, errors::AppErrors};
 use actix_web::FromRequest;
