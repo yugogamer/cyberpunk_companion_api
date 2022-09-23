@@ -64,6 +64,20 @@
     },
     "query": "SELECT * FROM accounts\n            where username = $1 or email = $2"
   },
+  "42b423ee87b12c9337811fc912e0fc601095c32a9382c55efa8091a32cdb9999": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO skills (player_id, skill_template_id, value) VALUES ($1, $2, $3)"
+  },
   "527a05c3cada14f12c6d3908a07c204fecf3240f7dcf1ffc5db2908a14424b48": {
     "describe": {
       "columns": [
@@ -101,6 +115,50 @@
       }
     },
     "query": "SELECT id, username, created_on, last_login FROM accounts WHERE id = $1"
+  },
+  "5af98687b9c1d1b5c7ae75f322c70e8791211683e6ef0c44cc15e15acafa4183": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "parent_stats_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "types",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT st.id, st.name, st.description, st.parent_stats_id, t.name as types\n            FROM skills_template AS st\n            inner join \"types\" as t on t.id = st.type\n            where st.id = $1"
   },
   "5d0df01a1b4ca2f638b0e0ecf94fdf6f56478424082505cac323b6efa09d8578": {
     "describe": {
