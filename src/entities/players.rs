@@ -5,15 +5,15 @@ pub struct Players {
     pub id: i32,
     pub name: String,
     pub family_name: String,
-    pub surname: String,
-    pub age: i32,
-    pub description: String,
-    pub image: String,
+    pub surname: Option<String>,
+    pub age: Option<i32>,
+    pub description: Option<String>,
+    pub image: Option<String>,
     pub improvement_points: i32,
     pub used_improvement_points: i32,
     pub created_on: chrono::NaiveDateTime,
     pub owner: i32,
-    pub template_id: i32,
+    pub template_id: Option<i32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
