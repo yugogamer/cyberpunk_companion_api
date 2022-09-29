@@ -24,6 +24,7 @@ pub struct SkillTemplate {
     pub types: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComplateSkill {
     pub id: i32,
     pub name: String,

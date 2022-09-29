@@ -2,7 +2,7 @@ use sqlx::PgPool;
 
 use crate::{entities::stats::*, utils::errors::AppErrors};
 
-pub async fn create_stats_template(conn: &PgPool, stats: CreateStats) -> Result<(), AppErrors> {
+pub async fn create_statse(conn: &PgPool, stats: CreateStats) -> Result<(), AppErrors> {
     let computed_value = stats.base_value + stats.modifier;
     sqlx::query!(
         "INSERT INTO stats (player_id, stats_template_id, base_value, modifier, computed_value) VALUES ($1, $2, $3, $4, $5)",
